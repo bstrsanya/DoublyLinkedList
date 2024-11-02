@@ -66,28 +66,6 @@ void DumpMassive (int* data, int size)
     putchar ('\n');
 }
 
-void InsertHead (int value, LIST* list)
-{
-    list->data[list->free] = value;
-    int a = list->next[list->free];
-    list->prev[list->next[0]] = list->free; // ставим предыдущий элемент у предыдущей головы
-    list->prev[list->free] = 0;             // предыдущий элемент головы ноль
-    list->next[list->free] = list->next[0]; // следущий элемент головы значение прошлой головы
-    list->next[0] = list->free;             // обновление головы
-    list->free = a;    
-}
-
-void InsertTail (int value, LIST* list)
-{
-    list->data[list->free] = value;
-    int a = list->next[list->free];
-    list->next[list->prev[0]] = list->free; // ставим следующий элемент у предыдущего хвоста
-    list->next[list->free] = 0;             // следующий элемент хвоста ноль
-    list->prev[list->free] = list->prev[0]; // ставим предыдущий элемент нового хвоста
-    list->prev[0] = list->free;             // обновление хвоста
-    list->free = a;    
-}
-
 void InsertAfter (int value, int point, LIST* list)
 {
     list->data[list->free] = value;
@@ -112,35 +90,16 @@ void InsertBefore (int value, int point, LIST* list)
     list->free = b;   
 }
 
-int  FindElement (int value, LIST* list)
+void InsertHead (int value, LIST* list)
 {
-    for (int i = 1; i < (int) list->size; i++)
-        if (value == list->data[i]) return i;
-
-    return -1;
+    InsertAfter (value, 0, list);
 }
 
-void DeleteHead  (LIST* list)
+void InsertTail (int value, LIST* list)
 {
-    list->data[list->next[0]] = -1;
-    int a = list->next[list->next[0]];
-    list->next[list->next[0]] = list->free;
-    list->free = list->next[0];
-    // list->prev[list->next[0]] = 0;
-    list->next[0] = a;
-    list->prev[list->next[0]] = 0;
+    InsertBefore (value, 0, list);
 }
 
-void DeleteTail (LIST* list)
-{
-    list->data[list->prev[0]] = -1;
-    int a = list->prev[list->prev[0]];
-    list->next[list->prev[0]] = list->free;
-    list->free = list->prev[0];
-    list->prev[list->prev[0]] = 0;
-    list->prev[0] = a;
-    list->next[list->prev[0]] = 0;
-}
 
 void DeletePoint (int point, LIST* list)
 {
@@ -152,3 +111,24 @@ void DeletePoint (int point, LIST* list)
     list->prev[point] = 0;
 }
 
+void DeleteHead  (LIST* list)
+{
+    DeletePoint (list->next[0], list);
+}
+
+void DeleteTail (LIST* list)
+{
+    DeletePoint (list->prev[0], list);
+}
+
+
+int  FindElement (int value, LIST* list)
+{
+    for (int i = 1; i < (int) list->size; i++)
+        if (value == list->data[i]) return i;
+
+    return -1;
+}
+
+// сначала по честному расписал все функции потом понял, что DeleteHead & DeleteTail можно свести к 
+// DeletePoint, а также InsertHead & InsertTail можно свести к InsertAfter/Before

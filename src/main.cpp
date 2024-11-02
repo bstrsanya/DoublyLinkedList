@@ -22,7 +22,7 @@ int main()
     InsertBefore (37, 3, list);
     InsertAfter (23, 5, list);
 
-    DeletePoint (8, list);
+    DeleteTail (list);
 
     printf ("DATA\n");
     DumpMassive (list->data, SIZE);
