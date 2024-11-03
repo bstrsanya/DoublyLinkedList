@@ -18,19 +18,22 @@ int main()
     InsertTail (5, list);
     InsertTail (10, list);
 
-    InsertAfter (42, 3, list);
-    InsertBefore (37, 3, list);
-    InsertAfter (23, 5, list);
+    // InsertAfter (42, 3, list);
+    // InsertBefore (37, 3, list);
+    // InsertAfter (23, 5, list);
 
     DeleteTail (list);
+    // DeletePoint (4, list);
 
-    printf ("DATA\n");
-    DumpMassive (list->data, SIZE);
-    printf ("NEXT\n");
-    DumpMassive (list->next, SIZE);
-    printf ("PREV\n");
-    DumpMassive (list->prev, SIZE);
-    printf ("free: %d\n", list->free);
+    // printf ("DATA\n");
+    // DumpMassive (list->data, SIZE);
+    // printf ("NEXT\n");
+    // DumpMassive (list->next, SIZE);
+    // printf ("PREV\n");
+    // DumpMassive (list->prev, SIZE);
+    // printf ("free: %d\n", list->free);
+
+    DumpDot (list);
 
     ListDtor (list);
 }

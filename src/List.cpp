@@ -132,3 +132,27 @@ int  FindElement (int value, LIST* list)
 
 // сначала по честному расписал все функции потом понял, что DeleteHead & DeleteTail можно свести к 
 // DeletePoint, а также InsertHead & InsertTail можно свести к InsertAfter/Before
+
+void DumpDot (LIST* list)
+{
+    printf ("digraph {\n");
+    printf ("splines=\"ortho\";\n");
+    printf ("rankdir=LR;\n");
+    for (int i = 0; i < (int) list->size; i++)
+        printf ("node%d [shape=Mrecord; style = filled; label = \"{#%d} | {data = %d} | {next = %d} | {prev = %d} \"];\n", i, i, list->data[i], list->next[i], list->prev[i]);
+    for (int i = 0; i < (int) list->size - 1; i++)
+        printf ("node%d -> node%d [weight = 1000; color = white;];\n", i, i + 1);
+    printf ("node100 [shape=Mrecord; style = filled; label = \"free\"];\n");
+    printf ("node100 -> node%d [color = blue, constraint = false, style = dashed];\n", list->free);
+    for (int i = 0; i < (int) list->size; i++)
+    {
+        if (i == 0 || list->data[i] != -1)
+            printf ("node%d -> node%d [color = red, constraint = false];\n", i, list->next[i]);
+        else
+        {
+            if (list->next[i] != 0)
+                printf ("node%d -> node%d [color = blue; constraint = false; style = dashed];\n", i, list->next[i]);
+        }
+    }
+    printf ("}\n");
+}

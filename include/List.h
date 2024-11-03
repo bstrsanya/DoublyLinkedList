@@ -28,4 +28,6 @@ void DeleteHead  (LIST* list);
 void DeleteTail  (LIST* list);
 void DeletePoint (int point, LIST* list);
 
+void DumpDot (LIST* list);
+
 #endif
