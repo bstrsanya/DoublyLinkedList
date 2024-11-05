@@ -1,0 +1,78 @@
+<pre>
+ListCtor
+data [0x511000000040]:   -1   -1   -1   -1   -1
+next [0x511000000048]:    0    2    3    4    0
+prev [0x511000000050]:    0    0    0    0    0
+
+<img src="./file_dot/file_0.png" width = 700 >
+
+InsertHead #13
+data [0x511000000040]:   -1   13   -1   -1   -1
+next [0x511000000048]:    1    0    3    4    0
+prev [0x511000000050]:    1    0    0    0    0
+
+<img src="./file_dot/file_1.png" width = 700 >
+
+InsertHead #15
+data [0x511000000040]:   -1   13   15   -1   -1
+next [0x511000000048]:    2    0    1    4    0
+prev [0x511000000050]:    1    2    0    0    0
+
+<img src="./file_dot/file_2.png" width = 700 >
+
+InsertHead #21
+data [0x511000000040]:   -1   13   15   21   -1
+next [0x511000000048]:    3    0    1    2    0
+prev [0x511000000050]:    1    2    3    0    0
+
+<img src="./file_dot/file_3.png" width = 700 >
+
+InsertTail #5
+data [0x511000000040]:   -1   13   15   21    5
+next [0x511000000048]:    3    4    1    2    0
+prev [0x511000000050]:    4    2    3    0    1
+
+<img src="./file_dot/file_4.png" width = 700 >
+
+InsertTail #10
+data [0x511000000040]:   -1   13   15   21    5   10   -1   -1   -1   -1
+next [0x511000000048]:    3    4    1    2    5    0    7    8    9    0
+prev [0x511000000050]:    5    2    3    0    1    4    0    0    0    0
+
+<img src="./file_dot/file_5.png" width = 700 >
+
+InsertAfter (3) #42
+data [0x511000000040]:   -1   13   15   21    5   10   42   -1   -1   -1
+next [0x511000000048]:    3    4    1    6    5    0    2    8    9    0
+prev [0x511000000050]:    5    2    6    0    1    4    3    0    0    0
+
+<img src="./file_dot/file_6.png" width = 700 >
+
+InsertBefore (3) #37
+data [0x511000000040]:   -1   13   15   21    5   10   42   37   -1   -1
+next [0x511000000048]:    7    4    1    6    5    0    2    3    9    0
+prev [0x511000000050]:    5    2    6    7    1    4    3    0    0    0
+
+<img src="./file_dot/file_7.png" width = 700 >
+
+InsertAfter (5) #23
+data [0x511000000040]:   -1   13   15   21    5   10   42   37   23   -1
+next [0x511000000048]:    7    4    1    6    5    8    2    3    0    0
+prev [0x511000000050]:    8    2    6    7    1    4    3    0    5    0
+
+<img src="./file_dot/file_8.png" width = 700 >
+
+DeleteTail
+data [0x511000000040]:   -1   13   15   21    5   10   42   37   -1   -1
+next [0x511000000048]:    7    4    1    6    5    0    2    3    9    0
+prev [0x511000000050]:    5    2    6    7    1    4    3    0    0    0
+
+<img src="./file_dot/file_9.png" width = 700 >
+
+DeletePoint (4)
+data [0x511000000040]:   -1   13   15   21   -1   10   42   37   -1   -1
+next [0x511000000048]:    7    5    1    6    8    0    2    3    9    0
+prev [0x511000000050]:    5    2    6    7    0    1    3    0    0    0
+
+<img src="./file_dot/file_10.png" width = 700 >
+
