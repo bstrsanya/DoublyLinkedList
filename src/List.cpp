@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <List.h>
 
 #define ERROR(a, b) {int c = 0; if ((c = a) != b) return c;}
 
+
 LIST* ListCtor (size_t size)
 {
-    int* data_calloc = (int*) calloc (size, sizeof (int));
+    Elem_t* data_calloc = (Elem_t*) calloc (size, sizeof (Elem_t));
     if (data_calloc == NULL) 
         return NULL;
     
@@ -28,6 +30,11 @@ LIST* ListCtor (size_t size)
     list_calloc->prev = prev_calloc;
     list_calloc->size = size;
     list_calloc->free = 1;
+
+    LOG_ON (
+        list_calloc->dump = NULL;
+        list_calloc->file = NULL;
+        list_calloc->line = 0; )
 
     for (int i = 0; i < (int) size; i++)
     {
@@ -60,7 +67,7 @@ void ListDtor (LIST* list)
     list = 0;
 }
 
-int InsertAfter (int value, int point, LIST* list)
+int InsertAfter (Elem_t value, int point, LIST* list)
 {
     if (list->free == 0)
         ERROR (MyRealloc (list), OK);
@@ -73,12 +80,20 @@ int InsertAfter (int value, int point, LIST* list)
 
     list->prev[list->next[point]] = list->free;
     list->next[point] = list->free;
-    list->free = next_free;  
-    
+    list->free = next_free; 
+
+    LOG_ON (
+        if (list->line)
+        {
+            char str[100] = {};
+            sprintf (str, "InsertAfter: point #%d, value #%d\n", point, value);
+            LogFile (str, list);
+        })
+
     return OK;
 }
 
-int InsertBefore (int value, int point, LIST* list)
+int InsertBefore (Elem_t value, int point, LIST* list)
 {
     if (list->free == 0)
         ERROR (MyRealloc (list), OK);
@@ -93,32 +108,64 @@ int InsertBefore (int value, int point, LIST* list)
     list->prev[point] = list->free;
     list->free = next_free;   
 
+    LOG_ON(
+        if (list->line)
+        {
+            char str[100] = {};
+            sprintf (str, "InsertBefore: point #%d, value #%d\n", point, value);
+            LogFile (str, list);
+        })
+
     return OK;
 }
 
-int InsertHead (int value, LIST* list)
+int InsertHead (Elem_t value, LIST* list)
 {
     ERROR (InsertAfter (value, 0, list), OK);
 
     return OK;
 }
 
-int InsertTail (int value, LIST* list)
+int InsertTail (Elem_t value, LIST* list)
 {
     ERROR (InsertBefore (value, 0, list), OK);
 
     return OK;
 }
 
+//TODO:
+// #define VERIFY(stk, ending)
+// {
+//     log_file    fopen("LOG.txt")
+//     int x = 0; 00000000
+//     if (stk == NULL)
+//     {
+
+//     }
+//     StackAssert(stk, x, __FILE__);
+//     StackPrint();
+
+// }
 
 void DeletePoint (int point, LIST* list)
 {
+    //TODO: 
+    // VERIFY(list, abort());
+
     list->data[point] = -1;
     list->prev[list->next[point]] = list->prev[point];
     list->next[list->prev[point]] = list->next[point];
     list->next[point] = list->free;
     list->free = point;
     list->prev[point] = 0;
+
+    LOG_ON (
+        if (list->line)
+        {
+            char str[100] = {};
+            sprintf (str, "DeletePoint: point #%d\n", point);
+            LogFile (str, list);
+        })
 }
 
 void DeleteHead  (LIST* list)
@@ -132,7 +179,7 @@ void DeleteTail (LIST* list)
 }
 
 
-int  FindElement (int value, LIST* list)
+int  FindElement (Elem_t value, LIST* list)
 {
     for (int i = 1; i < (int) list->size; i++)
         if (value == list->data[i]) return i;
@@ -142,7 +189,7 @@ int  FindElement (int value, LIST* list)
 
 int MyRealloc (LIST* list)
 {
-    int* new_data = (int*) realloc (list->data, (size_t) (list->size) * 2 * sizeof (int));
+    Elem_t* new_data = (Elem_t*) realloc (list->data, (size_t) (list->size) * 2 * sizeof (Elem_t));
     if (new_data == 0) 
         return ERROR_REALLOC;
     list->data = new_data;
@@ -171,63 +218,4 @@ int MyRealloc (LIST* list)
     return OK;
 }
 
-// ----------------------------------------FOR DEBAG----------------------------------------
-
-void CreateDot (FILE* file, LIST* list)
-{
-    fprintf (file, "digraph {\n");
-    fprintf (file, "splines=\"ortho\";\n");
-    fprintf (file, "rankdir=LR;\n");
-
-    fprintf (file, "node%d [shape=Mrecord; style = filled; label = \"{#%d} | {data = %d} | {next = %d} | {prev = %d} \"];\n", 0, 0, list->data[0], list->next[0], list->prev[0]);
-    for (int i = 1; i < (int) list->size; i++)
-        if (list->data[i] != -1)
-            fprintf (file, "node%d [shape=Mrecord; style = filled; color = pink; label = \"{#%d} | {data = %d} | {next = %d} | {prev = %d} \"];\n", i, i, list->data[i], list->next[i], list->prev[i]);
-        else
-            fprintf (file, "node%d [shape=Mrecord; style = filled; color = \"#bff096\"; label = \"{#%d} | {data = %d} | {next = %d} | {prev = %d} \"];\n", i, i, list->data[i], list->next[i], list->prev[i]);
-
-    for (int i = 0; i < (int) list->size - 1; i++)
-        fprintf (file, "node%d -> node%d [weight = 1000; color = white;];\n", i, i + 1);
-
-    fprintf (file, "nodefree [shape=component; style = filled; color = \"#bff096\"; label = \"free\"];\n");
-    fprintf (file, "nodefree -> node%d [color = \"#356d06\", constraint = false, style = dashed, arrowhead = vee];\n", list->free);
-    
-    for (int i = 0; i < (int) list->size; i++)
-    {
-        if (i == 0 || list->data[i] != -1)
-           fprintf (file, "node%d -> node%d [color = red, constraint = false, style = bold, arrowhead = vee];\n", i, list->next[i]);
-        else
-        {
-            if (list->next[i] != 0)
-                fprintf (file, "node%d -> node%d [color = \"#356d06\"; constraint = false; style = dashed, arrowhead = vee];\n", i, list->next[i]);
-        }
-    }
-    fprintf (file, "}\n");
-}
-
-void CreateHtm (FILE* file, int num, LIST* list)
-{
-    DumpFile (file, list);
-    fputc ('\n', file);
-    fprintf (file, "<img src=\"./file_dot/file_%d.png\" width = 700 >\n", num);
-    fputc ('\n', file);
-}
-
-void DumpFile (FILE* file, LIST* list)
-{
-    fprintf (file, "data [%p]:", &list->data);
-    for (int i = 0; i < (int) list->size; i++)
-        fprintf (file, "%5d", list->data[i]);
-    fprintf (file, "\n");
-
-    fprintf (file, "next [%p]:", &list->next);
-    for (int i = 0; i < (int) list->size; i++)
-        fprintf (file, "%5d", list->next[i]);
-    fprintf (file, "\n");
-
-    fprintf (file, "prev [%p]:", &list->prev);
-    for (int i = 0; i < (int) list->size; i++)
-        fprintf (file, "%5d", list->prev[i]);
-    fprintf (file, "\n");
-}
 
