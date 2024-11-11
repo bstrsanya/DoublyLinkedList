@@ -1,13 +1,12 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include <List.h>
 
 #define ERROR(a, b) {int c = 0; if ((c = a) != b) return c;}
 
-
-LIST* ListCtor (size_t size)
+LIST* ListCtor (size_t size, ...)
 {
     Elem_t* data_calloc = (Elem_t*) calloc (size, sizeof (Elem_t));
     if (data_calloc == NULL) 
@@ -21,7 +20,7 @@ LIST* ListCtor (size_t size)
     if (prev_calloc == NULL) 
         return NULL;
     
-    LIST* list_calloc = (LIST*) calloc (size, sizeof (LIST));
+    LIST* list_calloc = (LIST*) calloc (1, sizeof (LIST));
     if (list_calloc == NULL) 
         return NULL;
 
@@ -31,21 +30,26 @@ LIST* ListCtor (size_t size)
     list_calloc->size = size;
     list_calloc->free = 1;
 
-    LOG_ON (
-        list_calloc->dump = NULL;
-        list_calloc->file = NULL;
-        list_calloc->line = 0; )
-
     for (int i = 0; i < (int) size; i++)
     {
         list_calloc->next[i] = i + 1;
-        list_calloc->prev[i] = 0;
+        list_calloc->prev[i] = -1;
         list_calloc->data[i] = -1;
     }
 
     list_calloc->next[0]        = 0;
     list_calloc->prev[0]        = 0;
-    list_calloc->next[size - 1] = 0;
+    list_calloc->next[size - 1] = -1;
+
+    LOG_ON (
+    list_calloc->dump = CreateFileLog();
+    va_list factor;         
+    va_start(factor, size);
+    list_calloc->line = va_arg(factor, int);
+    list_calloc->file = va_arg(factor, const char*);
+    va_end(factor);
+    char str[] = "Created list\n";
+    LogFile (str, list_calloc); )
     
     return list_calloc;
 }
@@ -61,6 +65,10 @@ void ListDtor (LIST* list)
     free (list->prev);
     list->prev = NULL;
 
+    list->dump = NULL;
+    list->file = NULL;
+    list->free = 0;
+    list->line = 0;
     list->size = 0;  
 
     free (list);
@@ -69,7 +77,7 @@ void ListDtor (LIST* list)
 
 int InsertAfter (Elem_t value, int point, LIST* list)
 {
-    if (list->free == 0)
+    if (list->free == -1)
         ERROR (MyRealloc (list), OK);
 
     int next_free = list->next[list->free];
@@ -95,7 +103,7 @@ int InsertAfter (Elem_t value, int point, LIST* list)
 
 int InsertBefore (Elem_t value, int point, LIST* list)
 {
-    if (list->free == 0)
+    if (list->free == -1)
         ERROR (MyRealloc (list), OK);
 
     int next_free = list->next[list->free];
@@ -157,7 +165,7 @@ void DeletePoint (int point, LIST* list)
     list->next[list->prev[point]] = list->next[point];
     list->next[point] = list->free;
     list->free = point;
-    list->prev[point] = 0;
+    list->prev[point] = -1;
 
     LOG_ON (
         if (list->line)
@@ -210,10 +218,10 @@ int MyRealloc (LIST* list)
     {
         list->next[i] = i + 1;
         list->data[i] = -1;
-        list->prev[i] = 0;
+        list->prev[i] = -1;
     }
 
-    list->next[list->size - 1] = 0;
+    list->next[list->size - 1] = -1;
     list->free = (int) list->size / 2;
     return OK;
 }

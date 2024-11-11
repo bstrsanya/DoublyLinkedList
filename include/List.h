@@ -1,6 +1,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stdio.h>
+
 #define LOG_LIST 
 
 #ifdef LOG_LIST
@@ -9,12 +11,22 @@
 #define LOG_ON(...) ;
 #endif
 
-#define INSERT_HEAD(value, list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; InsertHead(value,list);} 
-#define INSERT_TAIL(value, list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; InsertTail(value,list);}
-#define INSERT_AFTER(value, point, list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; InsertAfter(value, point, list);}
-#define INSERT_BEFORE(value, point, list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; InsertBefore(value, point, list);}
-#define DELETE_TAIL(list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; DeleteTail(list);}
-#define DELETE_POINT(point, list) {list->line = __LINE__; list->file = __FILE__; list->dump = file_htm; DeletePoint(point, list);}
+#define VERIFY_LIST
+
+#ifdef VERIFY_LIST
+#define VERIFY_ON(...) __VA_ARGS__
+#else
+#define VERIFY_ON(...) ;
+#endif
+
+#define LIST_CTOR(SIZE) ListCtor(SIZE, __LINE__, __FILE__);
+#define INSERT_HEAD(value, list) {\
+list->line = __LINE__; list->file = __FILE__; InsertHead(value,list);} 
+#define INSERT_TAIL(value, list) {list->line = __LINE__; list->file = __FILE__; InsertTail(value,list);}
+#define INSERT_AFTER(value, point, list) {list->line = __LINE__; list->file = __FILE__; InsertAfter(value, point, list);}
+#define INSERT_BEFORE(value, point, list) {list->line = __LINE__; list->file = __FILE__; InsertBefore(value, point, list);}
+#define DELETE_TAIL(list) {list->line = __LINE__; list->file = __FILE__; DeleteTail(list);}
+#define DELETE_POINT(point, list) {list->line = __LINE__; list->file = __FILE__; DeletePoint(point, list);}
 #define ERROR(a, b) {int c = 0; if ((c = a) != b) return c;}
 
 typedef int Elem_t;
@@ -32,12 +44,11 @@ struct LIST
     const char* file;
     int line;
     )
-
 };    
 
 const size_t SIZE = 5;
 
-LIST* ListCtor (size_t SIZE);
+LIST* ListCtor (size_t SIZE, ...);
 void ListDtor  (LIST* list);
 int MyRealloc (LIST* list);
 
@@ -57,6 +68,8 @@ void CreateDot (FILE* file, LIST* list);
 void CreateHtm (FILE* file, int num, LIST* list);
 void LogFile (char* act, LIST* list);
 FILE* CreateFileLog ();
+void Verify (LIST* list);
+
 
 enum ERRORS
 {
